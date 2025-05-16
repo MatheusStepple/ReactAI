@@ -109,7 +109,7 @@
       margin: 10px 0;
       white-space: pre-wrap;
     }
-    #controls, #results-table-container, #excel-view-container {
+    #controls, #results-table-container {
       background-color: #2a3b5e;
       padding: 15px;
       border-radius: 8px;
@@ -143,7 +143,7 @@
     button:hover {
       background-color: #ff8caa;
     }
-    .action-btn {
+    .download-btn {
       background-color: #4CAF50;
       margin-top: 15px;
       display: flex;
@@ -154,10 +154,10 @@
       font-size: 16px;
       font-weight: bold;
     }
-    .action-btn:hover {
+    .download-btn:hover {
       background-color: #45a049;
     }
-    #viewExcelBtn {
+    #downloadExcel {
       display: none; /* Será mostrado quando houver dados */
     }
     table {
@@ -174,52 +174,6 @@
     th {
       background-color: #ff6f91;
       color: #fff;
-    }
-    #excel-view-container {
-      display: none; /* Inicialmente oculto */
-    }
-    #excel-table {
-      background-color: #fff;
-      color: #333;
-      margin-top: 20px;
-    }
-    #excel-table th {
-      background-color: #4CAF50;
-      color: white;
-      font-weight: bold;
-      padding: 12px;
-    }
-    #excel-table td {
-      color: #333;
-      padding: 10px;
-    }
-    #excel-table tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-    #excel-table tr:hover {
-      background-color: #ddd;
-    }
-    .excel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-    .excel-title {
-      font-size: 1.5em;
-      color: #fff;
-      margin: 0;
-    }
-    .close-btn {
-      background-color: #F44336;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 8px 15px;
-      cursor: pointer;
-    }
-    .close-btn:hover {
-      background-color: #d32f2f;
     }
   </style>
 </head>
@@ -276,32 +230,13 @@
       </thead>
       <tbody id="resultBody"></tbody>
     </table>
-    <button id="viewExcelBtn" class="action-btn" onclick="showExcelView()">
+    <button id="downloadExcel" class="download-btn" onclick="forceDownloadCSV()">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
         <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
         <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
       </svg>
-      Visualizar Dados em Excel
+      Baixar Excel (CSV)
     </button>
-  </div>
-  
-  <!-- Container para visualização de Excel -->
-  <div id="excel-view-container">
-    <div class="excel-header">
-      <h2 class="excel-title">Visualização de Dados em Excel</h2>
-      <button class="close-btn" onclick="hideExcelView()">Fechar</button>
-    </div>
-    <table id="excel-table">
-      <thead>
-        <tr>
-          <th>Produto</th>
-          <th>Tempo (s)</th>
-          <th>Aprovação (%)</th>
-          <th>Interesse (%)</th>
-        </tr>
-      </thead>
-      <tbody id="excel-body"></tbody>
-    </table>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
@@ -314,7 +249,7 @@
     let totalPredictionCount = 0; // Total de frames processados na sessão
     let nonFundoPredictionCount = 0; // Total de frames que NÃO são FUNDO
     let isRunning = false;
-    let gostouBar, naoGostouBar, fundoBar, feedbackContainer, viewExcelBtn;
+    let gostouBar, naoGostouBar, fundoBar, feedbackContainer, downloadButton;
     
     // Array para armazenar todos os resultados (persistência entre recarregamentos)
     let allResults = [];
@@ -331,9 +266,9 @@
           resultBody.appendChild(row);
         });
         
-        // Mostrar o botão de visualização se houver dados
+        // Mostrar o botão de download se houver dados
         if (allResults.length > 0) {
-          document.getElementById("viewExcelBtn").style.display = "flex";
+          document.getElementById("downloadExcel").style.display = "flex";
         }
       } catch (e) {
         console.error("Erro ao carregar dados salvos:", e);
@@ -350,47 +285,84 @@
     const INTERNAL_KEY_NAO_GOSTEI = "nao gostou";
     const INTERNAL_KEY_FUNDO = "FUNDO";
 
-    // Função para mostrar a visualização de Excel
-    function showExcelView() {
+    // Função para forçar o download do CSV
+    function forceDownloadCSV() {
       if (allResults.length === 0) {
-        alert("Não há dados para visualizar. Realize pelo menos uma análise primeiro.");
+        alert("Não há dados para exportar. Realize pelo menos uma análise primeiro.");
         return;
       }
       
       try {
-        // Limpar a tabela de Excel
-        const excelBody = document.getElementById("excel-body");
-        excelBody.innerHTML = "";
+        debugContainer.innerText = "Preparando arquivo para download...";
         
-        // Preencher a tabela de Excel com os dados
+        // Cabeçalho do CSV
+        let csvContent = "Produto,Tempo (s),Aprovação (%),Interesse (%)\n";
+        
+        // Adicionar cada linha de dados
         allResults.forEach(result => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${result.produto}</td>
-            <td>${result.tempo}</td>
-            <td>${result.aprovacao}%</td>
-            <td>${result.interesse}%</td>
-          `;
-          excelBody.appendChild(row);
+          // Escapar vírgulas no nome do produto se necessário
+          const produto = result.produto.includes(',') ? `"${result.produto}"` : result.produto;
+          csvContent += `${produto},${result.tempo},${result.aprovacao},${result.interesse}\n`;
         });
         
-        // Mostrar o container de visualização de Excel
-        document.getElementById("excel-view-container").style.display = "block";
+        // Método 1: Usando Blob e createObjectURL
+        try {
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const url = window.URL.createObjectURL(blob);
+          
+          const tempLink = document.createElement('a');
+          tempLink.href = url;
+          tempLink.setAttribute('download', `Resultados_Emocoes_${new Date().toISOString().split('T')[0]}.csv`);
+          tempLink.style.display = 'none';
+          
+          document.body.appendChild(tempLink);
+          tempLink.click();
+          
+          // Limpar após o download
+          setTimeout(() => {
+            document.body.removeChild(tempLink);
+            window.URL.revokeObjectURL(url);
+            debugContainer.innerText = "Download concluído! Arquivo salvo na sua pasta de downloads.";
+          }, 100);
+          
+          return; // Se o método 1 funcionar, não tenta o método 2
+        } catch (e) {
+          console.error("Método 1 falhou:", e);
+          // Continua para o método 2
+        }
         
-        // Rolar até a visualização
-        document.getElementById("excel-view-container").scrollIntoView({ behavior: 'smooth' });
+        // Método 2: Usando data URI (fallback)
+        const encodedUri = "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent);
         
-        debugContainer.innerText = "Visualização de dados em formato Excel aberta.";
+        const tempLink = document.createElement('a');
+        tempLink.href = encodedUri;
+        tempLink.setAttribute('download', `Resultados_Emocoes_${new Date().toISOString().split('T')[0]}.csv`);
+        tempLink.style.display = 'none';
+        
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        
+        // Limpar após o download
+        setTimeout(() => {
+          document.body.removeChild(tempLink);
+          debugContainer.innerText = "Download concluído! Arquivo salvo na sua pasta de downloads.";
+        }, 100);
+        
       } catch (error) {
-        console.error("Erro ao mostrar visualização:", error);
-        debugContainer.innerText = `Erro ao mostrar visualização: ${error.message}`;
+        console.error("Erro ao gerar CSV:", error);
+        debugContainer.innerText = `Erro ao gerar CSV: ${error.message}. Por favor, tente novamente.`;
+        
+        // Método 3: Abrir em nova janela como último recurso
+        try {
+          const csvWindow = window.open('', '_blank');
+          csvWindow.document.write('<pre>' + csvContent + '</pre>');
+          csvWindow.document.close();
+          debugContainer.innerText = "Não foi possível fazer o download automático. Os dados foram abertos em uma nova janela. Por favor, copie e salve manualmente.";
+        } catch (e) {
+          console.error("Todos os métodos falharam:", e);
+          debugContainer.innerText = "Todos os métodos de download falharam. Por favor, entre em contato com o suporte.";
+        }
       }
-    }
-    
-    // Função para ocultar a visualização de Excel
-    function hideExcelView() {
-      document.getElementById("excel-view-container").style.display = "none";
-      debugContainer.innerText = "Visualização de dados fechada.";
     }
 
     async function init() {
@@ -400,11 +372,11 @@
       naoGostouBar = document.getElementById("nao-gostou-bar");
       fundoBar = document.getElementById("fundo-bar");
       feedbackContainer = document.getElementById("feedback-container");
-      viewExcelBtn = document.getElementById("viewExcelBtn");
+      downloadButton = document.getElementById("downloadExcel");
 
-      // Verificar se há dados e mostrar o botão de visualização se necessário
+      // Verificar se há dados e mostrar o botão de download se necessário
       if (allResults.length > 0) {
-        viewExcelBtn.style.display = "flex";
+        downloadButton.style.display = "flex";
       }
 
       try {
@@ -567,9 +539,6 @@
         return;
       }
 
-      // Ocultar a visualização de Excel se estiver aberta
-      hideExcelView();
-
       isRunning = true; 
       predictions = []; // Reseta para cálculo de Aprovação
       totalPredictionCount = 0; // Reseta contador total de frames
@@ -636,8 +605,8 @@
       // Salvar no localStorage para persistência
       localStorage.setItem('resultadosEmocoes', JSON.stringify(allResults));
       
-      // Garantir que o botão de visualização esteja visível
-      viewExcelBtn.style.display = "flex";
+      // Garantir que o botão de download esteja visível
+      downloadButton.style.display = "flex";
       
       debugContainer.innerText = `Registro concluído para ${product}! Aprovação: ${gostouPercent}%. Interesse: ${interessePercent}% 🌟`;
     }
