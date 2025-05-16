@@ -27,6 +27,7 @@
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       margin-top: 20px;
+      display: none; /* Inicialmente oculto */
     }
     .feedback-item {
       margin-bottom: 15px;
@@ -174,7 +175,7 @@
       <div id="result">Analisando... 🔍</div>
     </div>
 
-    <div class="feedback-container">
+    <div class="feedback-container" id="feedback-container">
       <h2>Feedback Detalhado</h2>
       <div class="feedback-item">
         <label for="gostou-bar">😊 Gostou:</label>
@@ -207,7 +208,7 @@
           <th>Produto</th>
           <th>Tempo (s)</th>
           <th>Aprovação (%)</th>
-          <th>Interesse (%)</th> <!-- Nova coluna -->
+          <th>Interesse (%)</th>
         </tr>
       </thead>
       <tbody id="resultBody"></tbody>
@@ -224,7 +225,7 @@
     let totalPredictionCount = 0; // Total de frames processados na sessão
     let nonFundoPredictionCount = 0; // Total de frames que NÃO são FUNDO
     let isRunning = false;
-    let gostouBar, naoGostouBar, fundoBar;
+    let gostouBar, naoGostouBar, fundoBar, feedbackContainer;
 
     const MODEL_CLASS_GOSTOU = "Gostou";
     const MODEL_CLASS_NAO_GOSTEI = "Não gostou";
@@ -240,6 +241,7 @@
       gostouBar = document.getElementById("gostou-bar");
       naoGostouBar = document.getElementById("nao-gostou-bar");
       fundoBar = document.getElementById("fundo-bar");
+      feedbackContainer = document.getElementById("feedback-container");
 
       try {
         debugContainer.innerText += "\nTentando acessar a webcam... 📷";
@@ -408,6 +410,7 @@
 
       video.style.display = "block";
       labelContainer.style.display = "block";
+      feedbackContainer.style.display = "block"; // Mostra o feedback detalhado quando a webcam está ativa
       labelContainer.innerText = "Analisando... 🔍";
       debugContainer.innerText = `Registrando emoções para ${product} por ${originalTime}s... 🚀`;
 
@@ -436,6 +439,7 @@
       isRunning = false;
       video.style.display = "none";
       labelContainer.style.display = "none";
+      feedbackContainer.style.display = "none"; // Oculta o feedback detalhado quando a webcam está inativa
       clearTimeout(timer); clearInterval(timerInterval);
       document.getElementById("timer").style.display = "none";
 
@@ -458,4 +462,3 @@
   </script>
 </body>
 </html>
-
