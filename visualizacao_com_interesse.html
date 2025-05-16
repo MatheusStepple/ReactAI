@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Visualização de Feedback</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #1e2a44;
+      color: #ddd;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #ff6f91;
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    .feedback-container {
+      width: 100%;
+      max-width: 500px;
+      background-color: #2a3b5e;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      margin-top: 20px;
+    }
+    .feedback-item {
+      margin-bottom: 15px;
+    }
+    .feedback-item label {
+      display: block;
+      font-size: 1.1em;
+      margin-bottom: 5px;
+      color: #ffc4df;
+    }
+    .progress-bar-container {
+      width: 100%;
+      background-color: #1e2a44;
+      border-radius: 5px;
+      height: 30px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+    .progress-bar {
+      height: 100%;
+      line-height: 30px;
+      color: white;
+      text-align: center;
+      font-weight: bold;
+      transition: width 0.5s ease-in-out;
+      white-space: nowrap;
+      padding-left: 10px;
+      box-sizing: border-box;
+    }
+    #gostou-bar {
+      background-color: #4CAF50;
+    }
+    #nao-gostou-bar {
+      background-color: #F44336;
+    }
+    #fundo-bar {
+      background-color: #757575;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+    }
+    .video-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #cam {
+      border: 4px solid #ff9cbb;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      width: 100%;
+      max-width: 640px;
+    }
+    #result {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      background-color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-align: center;
+      display: none;
+    }
+    #debug {
+      font-size: 14px;
+      color: #ddd;
+      background-color: #2a3b5e;
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 640px;
+      text-align: center;
+      margin: 10px 0;
+      white-space: pre-wrap;
+    }
+    #controls, #results-table-container {
+      background-color: #2a3b5e;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+      width: 100%;
+      max-width: 1200px;
+      text-align: center;
+    }
+    #timer {
+      font-size: 18px;
+      color: #333;
+      background-color: #fff;
+      padding: 8px 15px;
+      border-radius: 5px;
+      margin: 10px 0;
+      display: none;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      background-color: #ff6f91;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #ff8caa;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+      color: #ddd;
+    }
+    th {
+      background-color: #ff6f91;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Detecção de Emoções em Tempo Real 🌟</h1>
+  <div id="controls">
+    <input type="text" id="product" placeholder="Nome do produto (ex: Coca-Cola)">
+    <input type="number" id="time" placeholder="Tempo (segundos)" min="1">
+    <button onclick="start()">Iniciar 🚀</button>
+    <div id="timer"></div>
+  </div>
+
+  <div class="container">
+    <div class="video-container">
+      <video id="cam" width="640" height="480" autoplay muted style="display: none;"></video>
+      <div id="result">Analisando... 🔍</div>
+    </div>
+
+    <div class="feedback-container">
+      <h2>Feedback Detalhado</h2>
+      <div class="feedback-item">
+        <label for="gostou-bar">😊 Gostou:</label>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="gostou-bar">0%</div>
+        </div>
+      </div>
+      <div class="feedback-item">
+        <label for="nao-gostou-bar">😔 nao gostou:</label>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="nao-gostou-bar">0%</div>
+        </div>
+      </div>
+      <div class="feedback-item">
+        <label for="fundo-bar">🌫️ FUNDO:</label>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="fundo-bar">0%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="debug">Iniciando sistema... 🚀</div>
+
+  <div id="results-table-container">
+    <h2>Resultados 📊</h2>
+    <table id="resultTable">
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Tempo (s)</th>
+          <th>Aprovação (%)</th>
+          <th>Interesse (%)</th> <!-- Nova coluna -->
+        </tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.5/dist/teachablemachine-image.min.js"></script>
+
+  <script>
+    const URL = "https://teachablemachine.withgoogle.com/models/YwDSlSEVp/";
+    let model, video, labelContainer, debugContainer, timer, timerInterval;
+    let predictions = []; // Para cálculo de Aprovação (Gostou vs Não Gostou)
+    let totalPredictionCount = 0; // Total de frames processados na sessão
+    let nonFundoPredictionCount = 0; // Total de frames que NÃO são FUNDO
+    let isRunning = false;
+    let gostouBar, naoGostouBar, fundoBar;
+
+    const MODEL_CLASS_GOSTOU = "Gostou";
+    const MODEL_CLASS_NAO_GOSTEI = "Não gostou";
+    const MODEL_CLASS_FUNDO = "FUNDO";
+
+    const INTERNAL_KEY_GOSTOU = "Gostou";
+    const INTERNAL_KEY_NAO_GOSTEI = "nao gostou";
+    const INTERNAL_KEY_FUNDO = "FUNDO";
+
+    async function init() {
+      debugContainer = document.getElementById("debug");
+      debugContainer.innerText = "Iniciando sistema... 🚀";
+      gostouBar = document.getElementById("gostou-bar");
+      naoGostouBar = document.getElementById("nao-gostou-bar");
+      fundoBar = document.getElementById("fundo-bar");
+
+      try {
+        debugContainer.innerText += "\nTentando acessar a webcam... 📷";
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video = document.getElementById("cam");
+        video.srcObject = stream;
+        await video.play();
+        debugContainer.innerText += "\nWebcam inicializada! ✅";
+      } catch (err) {
+        const errorMsg = `Erro ao acessar webcam: ${err.message} ❗\nVerifique permissões ou dispositivo.`;
+        debugContainer.innerText += `\n${errorMsg}`;
+        console.error("Erro na webcam:", err);
+        alert(errorMsg);
+        return;
+      }
+
+      try {
+        debugContainer.innerText += "\nCarregando modelo... ⏳";
+        model = await tmImage.load(URL + "model.json", URL + "metadata.json");
+        labelContainer = document.getElementById("result");
+        debugContainer.innerText += "\nModelo carregado! Pronto para iniciar! 🎉";
+        const initialProbs = {};
+        initialProbs[INTERNAL_KEY_GOSTOU] = 0;
+        initialProbs[INTERNAL_KEY_NAO_GOSTEI] = 0;
+        initialProbs[INTERNAL_KEY_FUNDO] = 1;
+        updateSimpleView(initialProbs);
+      } catch (err) {
+        const errorMsg = `Erro ao carregar modelo: ${err.message} ❗\nVerifique a URL: ${URL}model.json`;
+        debugContainer.innerText += `\n${errorMsg}`;
+        console.error("Erro no modelo:", err);
+        alert(errorMsg);
+        return;
+      }
+    }
+
+    function updateSimpleView(probabilities) {
+      const probGostou = probabilities[INTERNAL_KEY_GOSTOU] || 0;
+      const probNaoGostou = probabilities[INTERNAL_KEY_NAO_GOSTEI] || 0;
+      const probFundo = probabilities[INTERNAL_KEY_FUNDO] || 0;
+
+      let totalProb = probGostou + probNaoGostou + probFundo;
+      if (totalProb === 0) {
+          gostouBar.style.width = '0%';
+          gostouBar.innerText = '0%';
+          naoGostouBar.style.width = '0%';
+          naoGostouBar.innerText = '0%';
+          fundoBar.style.width = '100%';
+          fundoBar.innerText = '100%';
+          return;
+      }
+
+      let percentGostou = Math.round((probGostou / totalProb) * 100);
+      let percentNaoGostou = Math.round((probNaoGostou / totalProb) * 100);
+      let percentFundo = Math.round((probFundo / totalProb) * 100);
+
+      let currentSum = percentGostou + percentNaoGostou + percentFundo;
+      let diff = 100 - currentSum;
+
+      if (diff !== 0) {
+          if (diff > 0) {
+              if (percentGostou >= percentNaoGostou && percentGostou >= percentFundo) percentGostou += diff;
+              else if (percentNaoGostou >= percentGostou && percentNaoGostou >= percentFundo) percentNaoGostou += diff;
+              else percentFundo += diff;
+          } else {
+              if (percentGostou > 0 && percentGostou >= percentNaoGostou && percentGostou >= percentFundo) percentGostou += diff;
+              else if (percentNaoGostou > 0 && percentNaoGostou >= percentGostou && percentNaoGostou >= percentFundo) percentNaoGostou += diff;
+              else if (percentFundo > 0) percentFundo += diff;
+              else { percentGostou = 0; percentNaoGostou = 0; percentFundo = 100; }
+          }
+      }
+      percentGostou = Math.max(0, percentGostou);
+      percentNaoGostou = Math.max(0, percentNaoGostou);
+      percentFundo = Math.max(0, percentFundo);
+      currentSum = percentGostou + percentNaoGostou + percentFundo;
+      if (currentSum !== 100) {
+          percentFundo = 100 - percentGostou - percentNaoGostou;
+          percentFundo = Math.max(0, percentFundo);
+          if (percentGostou + percentNaoGostou > 100) {
+             if (percentGostou > percentNaoGostou) percentGostou = 100 - percentNaoGostou;
+             else percentNaoGostou = 100 - percentGostou;
+          }
+      }
+
+      gostouBar.style.width = percentGostou + '%';
+      gostouBar.innerText = percentGostou + '%';
+      naoGostouBar.style.width = percentNaoGostou + '%';
+      naoGostouBar.innerText = percentNaoGostou + '%';
+      fundoBar.style.width = percentFundo + '%';
+      fundoBar.innerText = percentFundo + '%';
+    }
+
+    async function loop() {
+      if (!isRunning) return;
+      await predict();
+      window.requestAnimationFrame(loop);
+    }
+
+    async function predict() {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = 224; canvas.height = 224;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const predictionArray = await model.predict(canvas);
+        totalPredictionCount++; // Incrementa o contador total de predições
+        let maxProb = 0; let maxLabel = ""; let emoji = "";
+
+        const probabilitiesMap = {};
+        probabilitiesMap[INTERNAL_KEY_GOSTOU] = 0;
+        probabilitiesMap[INTERNAL_KEY_NAO_GOSTEI] = 0;
+        probabilitiesMap[INTERNAL_KEY_FUNDO] = 0;
+
+        for (let i = 0; i < predictionArray.length; i++) {
+          const p = predictionArray[i];
+          if (p.className === MODEL_CLASS_GOSTOU) {
+            probabilitiesMap[INTERNAL_KEY_GOSTOU] = p.probability;
+          } else if (p.className === MODEL_CLASS_NAO_GOSTEI) {
+            probabilitiesMap[INTERNAL_KEY_NAO_GOSTEI] = p.probability;
+          } else if (p.className === MODEL_CLASS_FUNDO) {
+            probabilitiesMap[INTERNAL_KEY_FUNDO] = p.probability;
+          }
+
+          if (p.probability > maxProb) {
+            maxProb = p.probability;
+            maxLabel = p.className;
+          }
+        }
+        
+        if (maxLabel === MODEL_CLASS_GOSTOU) emoji = "😊";
+        else if (maxLabel === MODEL_CLASS_NAO_GOSTEI) emoji = "😔";
+        else emoji = "🌫️";
+        
+        if (maxLabel === MODEL_CLASS_FUNDO) {
+          labelContainer.innerText = "Nenhum rosto detectado 🌫️";
+        } else {
+          labelContainer.innerText = `${emoji} ${maxLabel} (${Math.round(maxProb * 100)}%)`;
+          predictions.push(maxLabel === MODEL_CLASS_GOSTOU); // Para Aprovação
+          nonFundoPredictionCount++; // Incrementa se não for FUNDO, para Interesse
+        }
+
+        updateSimpleView(probabilitiesMap);
+
+      } catch (err) {
+        console.error("Erro na previsão:", err);
+        debugContainer.innerText = `Erro na previsão: ${err.message} ❗`;
+      }
+    }
+
+    function start() {
+      if (isRunning || !model) {
+        alert("Modelo ou webcam não inicializados. Verifique o debug! ❗");
+        return;
+      }
+      const product = document.getElementById("product").value || "Produto Sem Nome";
+      const originalTime = parseInt(document.getElementById("time").value) || 10;
+      if (originalTime <= 0) {
+        alert("Por favor, insira um tempo válido! ❗");
+        return;
+      }
+
+      isRunning = true; 
+      predictions = []; // Reseta para cálculo de Aprovação
+      totalPredictionCount = 0; // Reseta contador total de frames
+      nonFundoPredictionCount = 0; // Reseta contador de frames não-FUNDO
+
+      video.style.display = "block";
+      labelContainer.style.display = "block";
+      labelContainer.innerText = "Analisando... 🔍";
+      debugContainer.innerText = `Registrando emoções para ${product} por ${originalTime}s... 🚀`;
+
+      const initialProbs = {};
+      initialProbs[INTERNAL_KEY_GOSTOU] = 0;
+      initialProbs[INTERNAL_KEY_NAO_GOSTEI] = 0;
+      initialProbs[INTERNAL_KEY_FUNDO] = 1;
+      updateSimpleView(initialProbs);
+
+      let countdownTime = originalTime;
+      const timerDisplay = document.getElementById("timer");
+      timerDisplay.style.display = "block";
+      timerDisplay.innerText = `Tempo restante: ${countdownTime}s ⏳`;
+      timerInterval = setInterval(() => {
+        countdownTime--;
+        timerDisplay.innerText = `Tempo restante: ${countdownTime}s ⏳`;
+        if (countdownTime <= 0) clearInterval(timerInterval);
+      }, 1000);
+
+      window.requestAnimationFrame(loop);
+      timer = setTimeout(() => stop(product, originalTime), originalTime * 1000);
+    }
+
+    function stop(product, time) {
+      if (!isRunning) return;
+      isRunning = false;
+      video.style.display = "none";
+      labelContainer.style.display = "none";
+      clearTimeout(timer); clearInterval(timerInterval);
+      document.getElementById("timer").style.display = "none";
+
+      // Cálculo da Aprovação (baseado em 'Gostou' vs 'Não Gostou' quando não é Fundo)
+      const emotionFrames = predictions.length || 1; // Total de frames onde houve emoção (Gostou ou Não Gostou)
+      const gostouCount = predictions.filter(p => p).length;
+      const gostouPercent = emotionFrames > 0 ? ((gostouCount / emotionFrames) * 100).toFixed(2) : 0;
+
+      // Cálculo do Interesse (percentual de tempo que não foi FUNDO)
+      const interessePercent = totalPredictionCount > 0 ? ((nonFundoPredictionCount / totalPredictionCount) * 100).toFixed(2) : 0;
+
+      const resultBody = document.getElementById("resultBody");
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${product}</td><td>${time}</td><td>${gostouPercent}% 😊</td><td>${interessePercent}%</td>`;
+      resultBody.prepend(row);
+      debugContainer.innerText = `Registro concluído para ${product}! Aprovação: ${gostouPercent}%. Interesse: ${interessePercent}% 🌟`;
+    }
+
+    init();
+  </script>
+</body>
+</html>
+
