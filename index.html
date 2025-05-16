@@ -143,6 +143,20 @@
     button:hover {
       background-color: #ff8caa;
     }
+    .download-btn {
+      background-color: #4CAF50;
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .download-btn:hover {
+      background-color: #45a049;
+    }
+    #downloadExcel {
+      display: none; /* Inicialmente oculto até ter dados */
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -213,8 +227,17 @@
       </thead>
       <tbody id="resultBody"></tbody>
     </table>
+    <button id="downloadExcel" class="download-btn" onclick="exportToExcel()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
+        <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+      </svg>
+      Baixar Excel
+    </button>
   </div>
 
+  <!-- Biblioteca para exportação de Excel -->
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.5/dist/teachablemachine-image.min.js"></script>
 
@@ -225,7 +248,33 @@
     let totalPredictionCount = 0; // Total de frames processados na sessão
     let nonFundoPredictionCount = 0; // Total de frames que NÃO são FUNDO
     let isRunning = false;
-    let gostouBar, naoGostouBar, fundoBar, feedbackContainer;
+    let gostouBar, naoGostouBar, fundoBar, feedbackContainer, downloadButton;
+    
+    // Array para armazenar todos os resultados (persistência entre recarregamentos)
+    let allResults = [];
+    
+    // Verificar se há dados salvos no localStorage
+    if (localStorage.getItem('resultadosEmocoes')) {
+      try {
+        allResults = JSON.parse(localStorage.getItem('resultadosEmocoes'));
+        // Preencher a tabela com os dados salvos
+        const resultBody = document.getElementById("resultBody");
+        allResults.forEach(result => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${result.produto}</td><td>${result.tempo}</td><td>${result.aprovacao}% 😊</td><td>${result.interesse}%</td>`;
+          resultBody.appendChild(row);
+        });
+        
+        // Mostrar o botão de download se houver dados
+        if (allResults.length > 0) {
+          document.getElementById("downloadExcel").style.display = "flex";
+        }
+      } catch (e) {
+        console.error("Erro ao carregar dados salvos:", e);
+        localStorage.removeItem('resultadosEmocoes'); // Remove dados corrompidos
+        allResults = [];
+      }
+    }
 
     const MODEL_CLASS_GOSTOU = "Gostou";
     const MODEL_CLASS_NAO_GOSTEI = "Não gostou";
@@ -235,6 +284,43 @@
     const INTERNAL_KEY_NAO_GOSTEI = "nao gostou";
     const INTERNAL_KEY_FUNDO = "FUNDO";
 
+    // Função para exportar a tabela para Excel
+    function exportToExcel() {
+      // Se não houver dados, alerta o usuário e não faz nada
+      // (Isso não deveria acontecer já que o botão só aparece quando há dados)
+      if (allResults.length === 0) {
+        alert("Não há dados para exportar. Realize pelo menos uma análise primeiro.");
+        return;
+      }
+      
+      try {
+        // Criar uma planilha a partir dos dados
+        const ws = XLSX.utils.json_to_sheet(allResults);
+        
+        // Definir larguras de coluna
+        const wscols = [
+          {wch: 20}, // Produto
+          {wch: 10}, // Tempo
+          {wch: 15}, // Aprovação
+          {wch: 15}  // Interesse
+        ];
+        ws['!cols'] = wscols;
+        
+        // Criar um livro e adicionar a planilha
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Resultados");
+        
+        // Gerar o arquivo e fazer download
+        const fileName = `Resultados_Emocoes_${new Date().toISOString().split('T')[0]}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+        
+        debugContainer.innerText = `Arquivo Excel exportado com sucesso: ${fileName}`;
+      } catch (error) {
+        console.error("Erro ao exportar para Excel:", error);
+        alert("Erro ao exportar para Excel. Verifique o console para mais detalhes.");
+      }
+    }
+
     async function init() {
       debugContainer = document.getElementById("debug");
       debugContainer.innerText = "Iniciando sistema... 🚀";
@@ -242,6 +328,7 @@
       naoGostouBar = document.getElementById("nao-gostou-bar");
       fundoBar = document.getElementById("fundo-bar");
       feedbackContainer = document.getElementById("feedback-container");
+      downloadButton = document.getElementById("downloadExcel");
 
       try {
         debugContainer.innerText += "\nTentando acessar a webcam... 📷";
@@ -451,10 +538,29 @@
       // Cálculo do Interesse (percentual de tempo que não foi FUNDO)
       const interessePercent = totalPredictionCount > 0 ? ((nonFundoPredictionCount / totalPredictionCount) * 100).toFixed(2) : 0;
 
+      // Adicionar à tabela HTML
       const resultBody = document.getElementById("resultBody");
       const row = document.createElement("tr");
       row.innerHTML = `<td>${product}</td><td>${time}</td><td>${gostouPercent}% 😊</td><td>${interessePercent}%</td>`;
       resultBody.prepend(row);
+      
+      // Adicionar ao array de resultados
+      const resultData = {
+        produto: product,
+        tempo: time,
+        aprovacao: gostouPercent,
+        interesse: interessePercent
+      };
+      allResults.push(resultData);
+      
+      // Salvar no localStorage para persistência
+      localStorage.setItem('resultadosEmocoes', JSON.stringify(allResults));
+      
+      // Mostrar o botão de download se este for o primeiro resultado
+      if (allResults.length === 1) {
+        downloadButton.style.display = "flex";
+      }
+      
       debugContainer.innerText = `Registro concluído para ${product}! Aprovação: ${gostouPercent}%. Interesse: ${interessePercent}% 🌟`;
     }
 
