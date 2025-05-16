@@ -227,17 +227,15 @@
       </thead>
       <tbody id="resultBody"></tbody>
     </table>
-    <button id="downloadExcel" class="download-btn" onclick="exportToExcel()">
+    <a id="downloadExcel" class="download-btn" href="#" onclick="exportToCSV(); return false;">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
         <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
         <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
       </svg>
-      Baixar Excel
-    </button>
+      Baixar Excel (CSV)
+    </a>
   </div>
 
-  <!-- Biblioteca para exportação de Excel -->
-  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.5/dist/teachablemachine-image.min.js"></script>
 
@@ -284,40 +282,36 @@
     const INTERNAL_KEY_NAO_GOSTEI = "nao gostou";
     const INTERNAL_KEY_FUNDO = "FUNDO";
 
-    // Função para exportar a tabela para Excel
-    function exportToExcel() {
+    // Função para exportar a tabela para CSV (compatível com Excel)
+    function exportToCSV() {
       // Se não houver dados, alerta o usuário e não faz nada
-      // (Isso não deveria acontecer já que o botão só aparece quando há dados)
       if (allResults.length === 0) {
         alert("Não há dados para exportar. Realize pelo menos uma análise primeiro.");
         return;
       }
       
       try {
-        // Criar uma planilha a partir dos dados
-        const ws = XLSX.utils.json_to_sheet(allResults);
+        // Cabeçalho do CSV
+        let csvContent = "Produto,Tempo (s),Aprovação (%),Interesse (%)\n";
         
-        // Definir larguras de coluna
-        const wscols = [
-          {wch: 20}, // Produto
-          {wch: 10}, // Tempo
-          {wch: 15}, // Aprovação
-          {wch: 15}  // Interesse
-        ];
-        ws['!cols'] = wscols;
+        // Adicionar cada linha de dados
+        allResults.forEach(result => {
+          // Escapar vírgulas no nome do produto se necessário
+          const produto = result.produto.includes(',') ? `"${result.produto}"` : result.produto;
+          csvContent += `${produto},${result.tempo},${result.aprovacao},${result.interesse}\n`;
+        });
         
-        // Criar um livro e adicionar a planilha
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Resultados");
+        // Criar um link para download usando data URI
+        const encodedUri = "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent);
+        const downloadLink = document.getElementById("downloadExcel");
+        downloadLink.setAttribute("href", encodedUri);
+        downloadLink.setAttribute("download", `Resultados_Emocoes_${new Date().toISOString().split('T')[0]}.csv`);
         
-        // Gerar o arquivo e fazer download
-        const fileName = `Resultados_Emocoes_${new Date().toISOString().split('T')[0]}.xlsx`;
-        XLSX.writeFile(wb, fileName);
-        
-        debugContainer.innerText = `Arquivo Excel exportado com sucesso: ${fileName}`;
+        // Não precisamos mais clicar programaticamente, pois o usuário clicará no link
+        debugContainer.innerText = `Arquivo CSV pronto para download! Clique novamente se necessário.`;
       } catch (error) {
-        console.error("Erro ao exportar para Excel:", error);
-        alert("Erro ao exportar para Excel. Verifique o console para mais detalhes.");
+        console.error("Erro ao exportar para CSV:", error);
+        debugContainer.innerText = `Erro ao exportar para CSV: ${error.message}`;
       }
     }
 
