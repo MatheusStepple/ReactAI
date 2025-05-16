@@ -150,12 +150,15 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
+      padding: 10px 15px;
+      font-size: 16px;
+      font-weight: bold;
     }
     .download-btn:hover {
       background-color: #45a049;
     }
     #downloadExcel {
-      display: none; /* Inicialmente oculto até ter dados */
+      display: none; /* Será mostrado quando houver dados */
     }
     table {
       width: 100%;
@@ -227,7 +230,7 @@
       </thead>
       <tbody id="resultBody"></tbody>
     </table>
-    <a id="downloadExcel" class="download-btn" href="#" onclick="exportToCSV(); return false;">
+    <a id="downloadExcel" class="download-btn" href="#" download="Resultados_Emocoes.csv">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
         <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
         <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
@@ -265,7 +268,7 @@
         
         // Mostrar o botão de download se houver dados
         if (allResults.length > 0) {
-          document.getElementById("downloadExcel").style.display = "flex";
+          updateCSVDownloadLink();
         }
       } catch (e) {
         console.error("Erro ao carregar dados salvos:", e);
@@ -282,11 +285,9 @@
     const INTERNAL_KEY_NAO_GOSTEI = "nao gostou";
     const INTERNAL_KEY_FUNDO = "FUNDO";
 
-    // Função para exportar a tabela para CSV (compatível com Excel)
-    function exportToCSV() {
-      // Se não houver dados, alerta o usuário e não faz nada
+    // Função para atualizar o link de download do CSV
+    function updateCSVDownloadLink() {
       if (allResults.length === 0) {
-        alert("Não há dados para exportar. Realize pelo menos uma análise primeiro.");
         return;
       }
       
@@ -302,16 +303,18 @@
         });
         
         // Criar um link para download usando data URI
-        const encodedUri = "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent);
-        const downloadLink = document.getElementById("downloadExcel");
-        downloadLink.setAttribute("href", encodedUri);
-        downloadLink.setAttribute("download", `Resultados_Emocoes_${new Date().toISOString().split('T')[0]}.csv`);
+        const csvData = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const csvUrl = URL.createObjectURL(csvData);
         
-        // Não precisamos mais clicar programaticamente, pois o usuário clicará no link
-        debugContainer.innerText = `Arquivo CSV pronto para download! Clique novamente se necessário.`;
+        const downloadLink = document.getElementById("downloadExcel");
+        downloadLink.href = csvUrl;
+        downloadLink.download = `Resultados_Emocoes_${new Date().toISOString().split('T')[0]}.csv`;
+        downloadLink.style.display = "flex";
+        
+        debugContainer.innerText = `Arquivo CSV pronto para download! Clique no botão "Baixar Excel (CSV)".`;
       } catch (error) {
-        console.error("Erro ao exportar para CSV:", error);
-        debugContainer.innerText = `Erro ao exportar para CSV: ${error.message}`;
+        console.error("Erro ao preparar CSV:", error);
+        debugContainer.innerText = `Erro ao preparar CSV: ${error.message}`;
       }
     }
 
@@ -323,6 +326,12 @@
       fundoBar = document.getElementById("fundo-bar");
       feedbackContainer = document.getElementById("feedback-container");
       downloadButton = document.getElementById("downloadExcel");
+
+      // Verificar se há dados e mostrar o botão de download se necessário
+      if (allResults.length > 0) {
+        downloadButton.style.display = "flex";
+        updateCSVDownloadLink();
+      }
 
       try {
         debugContainer.innerText += "\nTentando acessar a webcam... 📷";
@@ -550,10 +559,11 @@
       // Salvar no localStorage para persistência
       localStorage.setItem('resultadosEmocoes', JSON.stringify(allResults));
       
-      // Mostrar o botão de download se este for o primeiro resultado
-      if (allResults.length === 1) {
-        downloadButton.style.display = "flex";
-      }
+      // Atualizar o link de download do CSV
+      updateCSVDownloadLink();
+      
+      // Garantir que o botão de download esteja visível
+      downloadButton.style.display = "flex";
       
       debugContainer.innerText = `Registro concluído para ${product}! Aprovação: ${gostouPercent}%. Interesse: ${interessePercent}% 🌟`;
     }
