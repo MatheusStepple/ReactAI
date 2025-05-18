@@ -62,4 +62,5 @@ Agradeço ao professor **Cleber Zanchettin** pela excelente condução do curso 
 ## Contato
 
 Para dúvidas, sugestões ou parcerias, entre em contato:  
-**Seu nome / email / LinkedIn**
+
+https://www.linkedin.com/in/matheus-stepple/
