@@ -35,18 +35,14 @@ Este sistema simula a coleta e análise automática do feedback visual do públi
 
 - Veja o projeto em funcionamento no vídeo abaixo:  
 [Vídeo demonstrativo ReactAI](https://lnkd.in/dAQqBye5)  
-- Acesse o sistema online aqui:  
-[https://matheusstepple.github.io/ReactAI/](https://matheusstepple.github.io/ReactAI/)
+
 
 ---
 
 ## Como Executar
 
-1. Clone este repositório  
-2. Instale as dependências com `npm install` (ou `yarn`)  
-3. Inicie o projeto com `npm start` (ou `yarn start`)  
-4. Acesse a aplicação via navegador em `http://localhost:3000`  
-5. Permita o acesso à webcam para iniciar a análise em tempo real  
+- Acesse o sistema e teste aqui:  
+[https://matheusstepple.github.io/ReactAI/](https://matheusstepple.github.io/ReactAI/)
 
 ---
 
