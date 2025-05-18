@@ -8,9 +8,7 @@ O **ReactAI** é um sistema inovador de visão computacional que mede, em tempo 
 
 Usando o **Teachable Machine**, do Google, foi criado um modelo personalizado de reconhecimento de imagens treinado com as minhas próprias expressões faciais para classificar reações como:  
 - 😄 **Satisfação**  
-- 🥲 **Neutro**  
-- 😒 **Desaprovação**  
-- 😊 **Aprovação**  
+- 😒 **Desaprovação** 
 
 Este sistema simula a coleta e análise automática do feedback visual do público, semelhante ao comportamento de consumidores avaliando produtos em lojas ou eventos.
 
