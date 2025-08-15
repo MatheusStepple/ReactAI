@@ -4,7 +4,7 @@
   "description": "ReactAI - Sistema de Visão Computacional para Análise de Reação do Público em Tempo Real",
   "private": true,
   "dependencies": {
-    "react": "^18.2.0",
+    "react": "^19.1.1",
     "react-dom": "^18.2.0",
     "axios": "^1.4.0",
     "react-router-dom": "^6.11.2",
