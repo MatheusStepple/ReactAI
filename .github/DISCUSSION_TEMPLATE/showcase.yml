@@ -1,0 +1,99 @@
+name: 🎉 Demonstração/Showcase
+description: Compartilhe como você está usando o ReactAI
+title: "[SHOWCASE] "
+labels: ["showcase", "community"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        🎉 Incrível! Compartilhe como você está usando o ReactAI!
+        
+        Sua demonstração pode inspirar outros desenvolvedores e ajudar a melhorar o projeto.
+  - type: textarea
+    id: project-description
+    attributes:
+      label: 📝 Descrição do projeto
+      description: Descreva seu projeto ou implementação
+      placeholder: "Criei um sistema que..."
+    validations:
+      required: true
+  - type: dropdown
+    id: use-case
+    attributes:
+      label: 🎯 Caso de uso
+      description: Como você está usando o ReactAI?
+      options:
+        - Análise de reação do público
+        - Pesquisa de mercado
+        - Teste de produtos
+        - Análise de UX/UI
+        - Educação/Ensino
+        - Entretenimento
+        - Saúde/Médico
+        - Outro
+    validations:
+      required: true
+  - type: textarea
+    id: features-used
+    attributes:
+      label: ⚙️ Funcionalidades utilizadas
+      description: Quais funcionalidades do ReactAI você está usando?
+      placeholder: "Estou usando X, Y e Z..."
+  - type: textarea
+    id: customizations
+    attributes:
+      label: 🔧 Personalizações
+      description: Que personalizações você fez?
+      placeholder: "Personalizei X para Y..."
+  - type: textarea
+    id: results
+    attributes:
+      label: 📊 Resultados
+      description: Que resultados você obteve?
+      placeholder: "Os resultados mostraram..."
+  - type: textarea
+    id: challenges
+    attributes:
+      label: ⚠️ Desafios enfrentados
+      description: Que desafios você enfrentou e como resolveu?
+      placeholder: "O principal desafio foi..."
+  - type: textarea
+    id: learnings
+    attributes:
+      label: 📚 Aprendizados
+      description: Que aprendizados você teve?
+      placeholder: "Aprendi que..."
+  - type: input
+    id: project-url
+    attributes:
+      label: 🔗 Link do projeto
+      description: URL do seu projeto (se público)
+      placeholder: "https://github.com/username/project"
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 📸 Screenshots/Demo
+      description: Screenshots ou vídeos do seu projeto
+      placeholder: "Screenshots mostrando..."
+  - type: textarea
+    id: feedback
+    attributes:
+      label: 💡 Feedback para o ReactAI
+      description: Que melhorias você gostaria de ver no ReactAI?
+      placeholder: "Seria útil ter..."
+  - type: checkboxes
+    id: permissions
+    attributes:
+      label: 📋 Permissões
+      description: Confirme as permissões para compartilhamento
+      options:
+        - label: Posso compartilhar screenshots/vídeos do projeto
+        - label: Posso compartilhar código (se relevante)
+        - label: Posso ser contatado para mais detalhes
+        - label: Posso participar de entrevistas/casos de estudo
+  - type: textarea
+    id: contact-info
+    attributes:
+      label: 📞 Informações de contato
+      description: Como outros podem entrar em contato com você?
+      placeholder: "GitHub: @username, LinkedIn: ..."

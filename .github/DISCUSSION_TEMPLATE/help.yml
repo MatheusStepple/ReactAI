@@ -1,0 +1,97 @@
+name: ❓ Preciso de Ajuda
+description: Peça ajuda com o projeto ReactAI
+title: "[HELP] "
+labels: ["help-wanted", "question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Olá! 👋 Estamos aqui para ajudar!
+        
+        Antes de criar esta discussão, verifique:
+        - [Documentação](https://github.com/matheusstepple/ReactAI#readme)
+        - [Issues existentes](https://github.com/matheusstepple/ReactAI/issues)
+        - [Discussões anteriores](https://github.com/matheusstepple/ReactAI/discussions)
+  - type: textarea
+    id: problem-description
+    attributes:
+      label: 🎯 Descrição do problema
+      description: Descreva o problema que você está enfrentando
+      placeholder: "Estou tentando fazer X, mas Y está acontecendo..."
+    validations:
+      required: true
+  - type: dropdown
+    id: help-category
+    attributes:
+      label: 📂 Categoria de ajuda
+      description: Em qual área você precisa de ajuda?
+      options:
+        - Instalação/Configuração
+        - Uso da aplicação
+        - Desenvolvimento/Contribuição
+        - Modelo de ML
+        - API/Backend
+        - Frontend/React
+        - Banco de dados
+        - Deployment
+        - Testes
+        - Outro
+    validations:
+      required: true
+  - type: textarea
+    id: steps-tried
+    attributes:
+      label: 🔍 O que você já tentou?
+      description: Liste os passos que você já tentou para resolver o problema
+      placeholder: "1. Tentei X...\n2. Executei Y...\n3. Verifiquei Z..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: ✅ Comportamento esperado
+      description: O que deveria acontecer?
+      placeholder: "Esperava que X acontecesse..."
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: ❌ Comportamento atual
+      description: O que está acontecendo?
+      placeholder: "Mas Y está acontecendo..."
+  - type: input
+    id: environment
+    attributes:
+      label: 💻 Ambiente
+      description: Informações sobre seu ambiente
+      placeholder: "OS: Windows 10, Python: 3.11, Node.js: 18.0"
+  - type: textarea
+    id: error-messages
+    attributes:
+      label: 🚨 Mensagens de erro
+      description: Cole aqui qualquer mensagem de erro
+      placeholder: "Error: ..."
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 📸 Screenshots
+      description: Se aplicável, descreva ou link para screenshots
+      placeholder: "Screenshot mostrando..."
+  - type: checkboxes
+    id: troubleshooting
+    attributes:
+      label: 🔧 Troubleshooting realizado
+      description: O que você já verificou?
+      options:
+        - label: Verifiquei a documentação
+        - label: Procurei em issues existentes
+        - label: Procurei em discussões anteriores
+        - label: Testei em outro navegador
+        - label: Testei em outro dispositivo
+        - label: Reinstalei as dependências
+        - label: Limpei o cache
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📝 Contexto adicional
+      description: Qualquer informação adicional que possa ajudar
+      placeholder: "Contexto adicional..."

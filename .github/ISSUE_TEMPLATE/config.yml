@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentação
+    url: https://github.com/matheusstepple/ReactAI#readme
+    about: Consulte a documentação completa do projeto
+  - name: 💬 Discussões
+    url: https://github.com/matheusstepple/ReactAI/discussions
+    about: Participe de discussões sobre o projeto
+  - name: 🔒 Vulnerabilidade Crítica
+    url: https://www.linkedin.com/in/matheus-stepple/
+    about: Para vulnerabilidades críticas, entre em contato diretamente

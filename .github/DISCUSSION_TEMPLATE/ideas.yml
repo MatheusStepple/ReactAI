@@ -1,0 +1,78 @@
+name: 💡 Ideia ou Sugestão
+description: Compartilhe uma ideia ou sugestão para o projeto
+title: "[IDEA] "
+labels: ["idea", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por compartilhar sua ideia! 🎉
+        
+        Antes de prosseguir, verifique se sua ideia já foi discutida anteriormente.
+  - type: textarea
+    id: idea-description
+    attributes:
+      label: 📝 Descrição da ideia
+      description: Descreva sua ideia de forma clara e detalhada
+      placeholder: "Minha ideia é..."
+    validations:
+      required: true
+  - type: textarea
+    id: problem-solved
+    attributes:
+      label: 🎯 Problema que resolve
+      description: Qual problema sua ideia resolve?
+      placeholder: "Esta ideia resolve o problema de..."
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: 📂 Categoria
+      description: Em qual categoria sua ideia se encaixa?
+      options:
+        - Nova funcionalidade
+        - Melhoria de UX/UI
+        - Otimização de performance
+        - Melhoria no modelo de ML
+        - Nova integração
+        - Documentação
+        - Outro
+    validations:
+      required: true
+  - type: textarea
+    id: implementation
+    attributes:
+      label: 🔧 Implementação sugerida
+      description: Como você sugere que seja implementada?
+      placeholder: "Sugiro implementar assim..."
+  - type: textarea
+    id: benefits
+    attributes:
+      label: ✅ Benefícios
+      description: Quais são os benefícios desta ideia?
+      placeholder: "Os benefícios incluem..."
+  - type: textarea
+    id: challenges
+    attributes:
+      label: ⚠️ Desafios
+      description: Quais desafios você identifica?
+      placeholder: "Os desafios podem incluir..."
+  - type: textarea
+    id: examples
+    attributes:
+      label: 📚 Exemplos
+      description: Há exemplos similares em outros projetos?
+      placeholder: "Exemplos similares podem ser encontrados em..."
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 📋 Checklist
+      description: Confirme que você leu e concorda com os termos
+      options:
+        - label: Verifiquei se a ideia não foi discutida anteriormente
+          required: true
+        - label: Descrevi claramente a ideia e seus benefícios
+          required: true
+        - label: Considerei possíveis desafios de implementação
+        - label: Estou disposto a contribuir para a implementação

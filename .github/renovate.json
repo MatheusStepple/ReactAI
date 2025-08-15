@@ -1,0 +1,172 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)",
+    ":semanticCommitScope(deps)"
+  ],
+  "schedule": ["before 4am on monday"],
+  "timezone": "America/Recife",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "breaking"]
+    },
+    {
+      "matchPackagePatterns": ["^@types/"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
+      "matchPackagePatterns": ["^eslint", "^@eslint/"],
+      "groupName": "eslint packages",
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["^@testing-library/"],
+      "groupName": "testing library packages",
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["^@vitejs/", "^vite"],
+      "groupName": "vite packages",
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["^@tensorflow/", "^tensorflow"],
+      "groupName": "tensorflow packages",
+      "automerge": false
+    },
+    {
+      "matchPackagePatterns": ["^scikit-learn", "^sklearn"],
+      "groupName": "scikit-learn packages",
+      "automerge": false
+    },
+    {
+      "matchPackagePatterns": ["^fastapi", "^uvicorn"],
+      "groupName": "fastapi packages",
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["^sqlalchemy", "^psycopg2"],
+      "groupName": "database packages",
+      "automerge": false
+    },
+    {
+      "matchPackagePatterns": ["^pandas", "^numpy", "^matplotlib"],
+      "groupName": "data science packages",
+      "automerge": false
+    },
+    {
+      "matchPackagePatterns": ["^pytest", "^pytest-"],
+      "groupName": "pytest packages",
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["^black", "^isort", "^flake8", "^mypy"],
+      "groupName": "python linting packages",
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["^pre-commit"],
+      "groupName": "pre-commit packages",
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["^docker", "^docker-compose"],
+      "groupName": "docker packages",
+      "automerge": false
+    },
+    {
+      "matchPackagePatterns": ["^@actions/", "^actions/"],
+      "groupName": "github actions packages",
+      "automerge": true
+    }
+  ],
+  "assignees": ["matheusstepple"],
+  "reviewers": ["matheusstepple"],
+  "labels": ["dependencies"],
+  "commitMessageAction": "Update",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{newVersion}}",
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 10,
+  "rangeStrategy": "bump",
+  "bumpVersion": "patch",
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/vendor/**",
+    "**/examples/**",
+    "**/docs/**",
+    "**/.github/workflows/**"
+  ],
+  "enabledManagers": [
+    "npm",
+    "pip_requirements",
+    "pip_setup",
+    "pipenv",
+    "poetry",
+    "docker",
+    "docker-compose",
+    "github-actions",
+    "git-submodules",
+    "gradle",
+    "maven",
+    "nuget",
+    "composer",
+    "bundler",
+    "cargo",
+    "gomod",
+    "helmv3",
+    "terraform"
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "schedule": ["at any time"],
+    "automerge": false,
+    "labels": ["security", "dependencies"],
+    "assignees": ["matheusstepple"]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 4am on monday"],
+    "commitMessageAction": "Update",
+    "commitMessageTopic": "lock files",
+    "commitMessageExtra": "to latest versions"
+  },
+  "pruneStaleBranches": {
+    "enabled": true,
+    "schedule": ["before 4am on monday"]
+  },
+  "repositories": [
+    "matheusstepple/ReactAI"
+  ],
+  "onboarding": true,
+  "requireConfig": false,
+  "configWarningReuseIssue": false,
+  "platformAutomerge": true,
+  "git-submodules": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "matchPackageNames": ["python"],
+      "enabled": false
+    },
+    {
+      "matchPackageNames": ["node"],
+      "enabled": false
+    }
+  ]
+}
